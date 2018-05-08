@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="72dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp">
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp">
 
     <android.support.constraint.Guideline
         android:id="@+id/item_start_padding"
@@ -23,12 +23,23 @@
         app:layout_constraintGuide_end="?listPreferredItemPaddingRight" />
 
     <TextView
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toEndOf="@id/item_end_padding"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/date/mmddyy" />
+
+    <TextView
         android:id="@+id/author"
         style="@style/TextAppearance.AppCompat.Body2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        app:layout_constraintEnd_toStartOf="@id/item_end_padding"
+        app:layout_constraintEnd_toStartOf="@id/date"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toEndOf="@id/item_start_padding"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/full_names" />
@@ -36,33 +47,37 @@
     <RatingBar
         android:id="@+id/rating"
         style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@id/item_start_padding"
         app:layout_constraintTop_toBottomOf="@id/author"
-        tools:rating="3.5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        tools:rating="3.5" />
 
     <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="@tools:sample/date/mmddyy"
-        android:layout_marginStart="8dp"
-        app:layout_constraintEnd_toEndOf="@id/item_end_padding"
-        app:layout_constraintBottom_toBottomOf="@id/rating"
         app:layout_constraintTop_toTopOf="@id/rating"
-        app:layout_constraintStart_toEndOf="@id/rating"/>
+        app:layout_constraintBottom_toBottomOf="@id/rating"
+        app:layout_constraintStart_toEndOf="@id/rating"
+        app:layout_constraintEnd_toEndOf="@id/item_end_padding"
+        android:layout_marginStart="8dp"
+        android:singleLine="true"
+        tools:text="Title" />
 
     <TextView
         android:id="@+id/message"
         style="@style/TextAppearance.AppCompat.Body1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:minLines="0"
         android:maxLines="4"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/item_end_padding"
         app:layout_constraintStart_toEndOf="@id/item_start_padding"
         app:layout_constraintTop_toBottomOf="@id/rating"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:ellipsize="end"
         tools:text="@tools:sample/lorem/random" />
 
 </android.support.constraint.ConstraintLayout>
