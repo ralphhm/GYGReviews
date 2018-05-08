@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Reviews</string>
+    <string name="fetching_reviews">Fetching reviews</string>
+    <string name="fetch_error">There was an error fetching the reviews. Please click to retry.</string>
 </resources>

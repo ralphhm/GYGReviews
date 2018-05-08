@@ -32,8 +32,8 @@ class ReviewListActivity : AppCompatActivity() {
     }
 
     fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
-        Loading -> Snackbar.make(window.decorView, "Loading", Snackbar.LENGTH_LONG).show()
-        is Failure -> Snackbar.make(window.decorView, "Error ${uiState.cause.localizedMessage}", Snackbar.LENGTH_LONG).show()
+        Loading -> section.update(listOf(LoadingItem))
+        is Failure -> section.update(listOf(ErrorItem))
         is Result -> section.update(uiState.reviews.map { ReviewItem(it) })
     }
 
@@ -51,4 +51,14 @@ class ReviewItem(private val review: Review): Item() {
 
     override fun getLayout() = R.layout.item_review
 
+}
+
+object LoadingItem: Item() {
+    override fun bind(viewHolder: ViewHolder, position: Int) = Unit
+    override fun getLayout() = R.layout.item_loading
+}
+
+object ErrorItem: Item() {
+    override fun bind(viewHolder: ViewHolder, position: Int) = Unit
+    override fun getLayout() = R.layout.item_error
 }
