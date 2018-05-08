@@ -7,34 +7,28 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
-import de.rhm.reviews.api.GetyourguideService
+import dagger.android.AndroidInjection
 import de.rhm.reviews.api.model.Review
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_review_list.*
 import kotlinx.android.synthetic.main.content_review_list.*
 import kotlinx.android.synthetic.main.item_review.*
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
 class ReviewListActivity : AppCompatActivity() {
 
-    val service = Retrofit.Builder()
-            .baseUrl("http://www.getyourguide.com")
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            .build().create(GetyourguideService::class.java)
-    val viewModel = ReviewListViewModel(ReviewRepository(service))
-    val section = Section()
+    @Inject
+    lateinit var repo: ReviewRepository
+    private val section = Section()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review_list)
         setSupportActionBar(toolbar)
         content.adapter = GroupAdapter<ViewHolder>().apply {
             add(section)
         }
-        viewModel.uiStates.subscribe { bind(it) }
+        ReviewListViewModel(repo).uiStates.subscribe { bind(it) }
     }
 
     fun bind(uiState: ReviewsUiState): Unit = when (uiState) {

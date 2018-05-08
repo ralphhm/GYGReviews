@@ -2,11 +2,13 @@ ext {
     support_version = "27.1.1"
     retrofit_version = "2.4.0"
     groupie_version = "2.0.3"
+    dagger_version = "2.14.1"
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 // IMPORTANT!  Enables view caching in viewholders.
 // See: https://github.com/Kotlin/KEEP/blob/master/proposals/android-extensions-entity-caching.md
@@ -29,7 +31,8 @@ android {
         release {
             signingConfig signingConfigs.debug
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard_dagger.pro'
         }
     }
 }
@@ -53,6 +56,12 @@ dependencies {
     //Groupie
     implementation "com.xwray:groupie:$groupie_version"
     implementation "com.xwray:groupie-kotlin-android-extensions:$groupie_version"
+
+    //Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.nhaarman:mockito-kotlin:1.5.0'
