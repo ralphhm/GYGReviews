@@ -19,6 +19,7 @@ class ReviewListActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewHolderFactory: TypedViewModelFactory<ReviewListViewModel>
+    private lateinit var reviewListViewModel: ReviewListViewModel
     private val section = Section()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +29,11 @@ class ReviewListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         content.adapter = GroupAdapter<ViewHolder>().apply {
             add(section)
+            setOnItemClickListener { item, _ -> if (item === ErrorItem) reviewListViewModel.uiActions.onNext(RequestListAction) }
         }
-        ViewModelProviders.of(this, viewHolderFactory).get(ReviewListViewModel::class.java).uiStates.subscribe { bind(it) }
+        reviewListViewModel = ViewModelProviders.of(this, viewHolderFactory).get(ReviewListViewModel::class.java).apply {
+            uiStates.subscribe { bind(it) }
+        }
     }
 
     private fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
@@ -40,7 +44,7 @@ class ReviewListActivity : AppCompatActivity() {
 
 }
 
-class ReviewItem(private val review: Review): Item() {
+class ReviewItem(private val review: Review) : Item() {
 
     override fun bind(viewHolder: ViewHolder, position: Int) = with(viewHolder) {
         author.text = review.author
@@ -54,12 +58,12 @@ class ReviewItem(private val review: Review): Item() {
 
 }
 
-object LoadingItem: Item() {
+object LoadingItem : Item() {
     override fun bind(viewHolder: ViewHolder, position: Int) = Unit
     override fun getLayout() = R.layout.item_loading
 }
 
-object ErrorItem: Item() {
+object ErrorItem : Item() {
     override fun bind(viewHolder: ViewHolder, position: Int) = Unit
     override fun getLayout() = R.layout.item_error
 }
