@@ -33,7 +33,6 @@ class ReviewListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         content.adapter = GroupAdapter<ViewHolder>().apply {
             add(section)
-            setOnItemClickListener { item, _ -> if (item === ErrorItem) reviewListViewModel.uiActions.onNext(RequestListAction) }
         }
         reviewListViewModel = ViewModelProviders.of(this, viewHolderFactory).get(ReviewListViewModel::class.java).apply {
             uiStates.subscribe { bind(it) }.let { disposable.add(it) }
@@ -43,7 +42,7 @@ class ReviewListActivity : AppCompatActivity() {
 
     private fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
         Loading -> section.update(listOf(LoadingItem))
-        is Failure -> section.update(listOf(ErrorItem))
+        is Failure -> section.update(listOf(ErrorItem(uiState.retryAction)))
         is Result -> section.update(uiState.reviews.map { ReviewItem(it) })
     }
 
@@ -73,7 +72,7 @@ object LoadingItem : Item() {
     override fun getLayout() = R.layout.item_loading
 }
 
-object ErrorItem : Item() {
-    override fun bind(viewHolder: ViewHolder, position: Int) = Unit
+class ErrorItem(private val retryAction: () -> Unit) : Item() {
+    override fun bind(viewHolder: ViewHolder, position: Int) = viewHolder.itemView.setOnClickListener { retryAction.invoke() }
     override fun getLayout() = R.layout.item_error
 }

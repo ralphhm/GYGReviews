@@ -9,27 +9,27 @@ import javax.inject.Inject
 
 class ReviewListViewModel @Inject constructor(reviewRepo: ReviewRepository): ViewModel() {
 
-    val uiActions = PublishSubject.create<RequestListAction>()
+    private val uiActions = PublishSubject.create<FetchReviewsAction>()
     val uiStates: Observable<out ReviewsUiState> = uiActions
-            //trigger action to refresh review list at ViewModel creation time
-            .startWith(RequestListAction)
+            //trigger action to fetch reviews at ViewModel creation
+            .startWith(FetchReviewsAction)
             .switchMap {
                 reviewRepo.getReviews().toObservable()
                         .map<ReviewsUiState> { Result(it) }
                         //emit loading ui state before every async fetch call
                         .startWith(Loading)
-                        .onErrorReturn { Failure(it) }
+                        .onErrorReturn { Failure(it, {uiActions.onNext(FetchReviewsAction)}) }
             }
-            //cache the last emited ui state for resubscription
+            //cache last emitted ui state to preserve state on orientation change
             .replay(1)
             .autoConnect()
             .observeOn(AndroidSchedulers.mainThread())
 
 }
 
-object RequestListAction
+object FetchReviewsAction
 
 sealed class ReviewsUiState
 object Loading : ReviewsUiState()
-data class Failure(val cause: Throwable) : ReviewsUiState()
+data class Failure(val cause: Throwable, val retryAction: () -> Unit) : ReviewsUiState()
 data class Result(val reviews: List<Review>) : ReviewsUiState()
