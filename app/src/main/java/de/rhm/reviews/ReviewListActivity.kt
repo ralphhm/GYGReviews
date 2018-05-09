@@ -4,6 +4,8 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.Item
@@ -43,7 +45,15 @@ class ReviewListActivity : AppCompatActivity() {
     private fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
         Loading -> section.update(listOf(LoadingItem))
         is Failure -> section.update(listOf(ErrorItem(uiState.retryAction)))
-        is Result -> section.update(uiState.reviews.map { ReviewItem(it) })
+        is Result -> {
+            section.update(uiState.reviews.map { ReviewItem(it) })
+            content.scrollToPosition(uiState.scrollPosition)
+            content.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) uiState.scrollPosition = recyclerView.scrollPosition
+                }
+            })
+        }
     }
 
     override fun onDestroy() {
@@ -76,3 +86,5 @@ class ErrorItem(private val retryAction: () -> Unit) : Item() {
     override fun bind(viewHolder: ViewHolder, position: Int) = viewHolder.itemView.setOnClickListener { retryAction.invoke() }
     override fun getLayout() = R.layout.item_error
 }
+
+val RecyclerView.scrollPosition get() = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0

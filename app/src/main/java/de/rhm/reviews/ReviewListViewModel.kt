@@ -32,4 +32,4 @@ object FetchReviewsAction
 sealed class ReviewsUiState
 object Loading : ReviewsUiState()
 data class Failure(val cause: Throwable, val retryAction: () -> Unit) : ReviewsUiState()
-data class Result(val reviews: List<Review>) : ReviewsUiState()
+data class Result(val reviews: List<Review>, var scrollPosition: Int = 0) : ReviewsUiState()
