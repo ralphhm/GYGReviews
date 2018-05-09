@@ -1,6 +1,7 @@
 package de.rhm.reviews
 
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.xwray.groupie.GroupAdapter
@@ -10,6 +11,8 @@ import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import dagger.android.AndroidInjection
 import de.rhm.reviews.api.model.Review
 import de.rhm.reviews.di.TypedViewModelFactory
+import de.rhm.reviews.review.SubmitReviewActivity
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_review_list.*
 import kotlinx.android.synthetic.main.content_review_list.*
 import kotlinx.android.synthetic.main.item_review.*
@@ -21,6 +24,7 @@ class ReviewListActivity : AppCompatActivity() {
     lateinit var viewHolderFactory: TypedViewModelFactory<ReviewListViewModel>
     private lateinit var reviewListViewModel: ReviewListViewModel
     private val section = Section()
+    private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -32,14 +36,20 @@ class ReviewListActivity : AppCompatActivity() {
             setOnItemClickListener { item, _ -> if (item === ErrorItem) reviewListViewModel.uiActions.onNext(RequestListAction) }
         }
         reviewListViewModel = ViewModelProviders.of(this, viewHolderFactory).get(ReviewListViewModel::class.java).apply {
-            uiStates.subscribe { bind(it) }
+            uiStates.subscribe { bind(it) }.let { disposable.add(it) }
         }
+        fab.setOnClickListener { startActivity(Intent(this, SubmitReviewActivity::class.java)) }
     }
 
     private fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
         Loading -> section.update(listOf(LoadingItem))
         is Failure -> section.update(listOf(ErrorItem))
         is Result -> section.update(uiState.reviews.map { ReviewItem(it) })
+    }
+
+    override fun onDestroy() {
+        disposable.dispose()
+        super.onDestroy()
     }
 
 }
