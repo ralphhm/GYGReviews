@@ -1,7 +1,7 @@
 package de.rhm.reviews
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
@@ -9,6 +9,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import dagger.android.AndroidInjection
 import de.rhm.reviews.api.model.Review
+import de.rhm.reviews.di.TypedViewModelFactory
 import kotlinx.android.synthetic.main.activity_review_list.*
 import kotlinx.android.synthetic.main.content_review_list.*
 import kotlinx.android.synthetic.main.item_review.*
@@ -17,7 +18,7 @@ import javax.inject.Inject
 class ReviewListActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var repo: ReviewRepository
+    lateinit var viewHolderFactory: TypedViewModelFactory<ReviewListViewModel>
     private val section = Section()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +29,10 @@ class ReviewListActivity : AppCompatActivity() {
         content.adapter = GroupAdapter<ViewHolder>().apply {
             add(section)
         }
-        ReviewListViewModel(repo).uiStates.subscribe { bind(it) }
+        ViewModelProviders.of(this, viewHolderFactory).get(ReviewListViewModel::class.java).uiStates.subscribe { bind(it) }
     }
 
-    fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
+    private fun bind(uiState: ReviewsUiState): Unit = when (uiState) {
         Loading -> section.update(listOf(LoadingItem))
         is Failure -> section.update(listOf(ErrorItem))
         is Result -> section.update(uiState.reviews.map { ReviewItem(it) })

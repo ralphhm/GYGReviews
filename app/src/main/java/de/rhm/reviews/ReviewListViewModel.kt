@@ -1,11 +1,13 @@
 package de.rhm.reviews
 
+import android.arch.lifecycle.ViewModel
 import de.rhm.reviews.api.model.Review
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
+import javax.inject.Inject
 
-class ReviewListViewModel(reviewRepo: ReviewRepository) {
+class ReviewListViewModel @Inject constructor(reviewRepo: ReviewRepository): ViewModel() {
 
     val uiActions = PublishSubject.create<RequestListAction>()
     val uiStates: Observable<out ReviewsUiState> = uiActions
